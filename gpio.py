@@ -10,6 +10,7 @@ REED_PIN = 4
 URL = "https://sheltered-citadel-43963.herokuapp.com"
 TIMEOUT = 2
 
+seat = '6A'
 pp = PrettyPrinter(indent=4)
 
 def export(pin):
@@ -36,12 +37,13 @@ def setup():
 
 
 def onchange(gpio):
+  params = {'seat': seat }
   if GPIO.input(REED_PIN):
     print("Rising edge = unbuckled")
-    requests.get(url="{}/unbuckle".format(URL))
+    requests.get(url="{}/unbuckle".format(URL), params=params)
   else:
     print("Falling edge = buckled")
-    requests.get(url="{}/buckle".format(URL))
+    requests.get(url="{}/buckle".format(URL), params=params)
 
 
 def main():
