@@ -8,7 +8,7 @@ from pprint import PrettyPrinter
 GPIO_PATH = "/sys/class/gpio"
 REED_PIN = 4
 URL = "https://sheltered-citadel-43963.herokuapp.com"
-TIMEOUT = 2
+TIMEOUT = 5
 
 seat = '6A'
 pp = PrettyPrinter(indent=4)
@@ -38,27 +38,23 @@ def setup():
 
 def onchange(gpio):
   params = {'seat': seat }
-  if GPIO.input(REED_PIN):
+  if GPIO.input(REED_PIN):  
+    # high signal := open
     print("Rising edge = unbuckled")
     requests.get(url="{}/unbuckle".format(URL), params=params)
   else:
+    # low signal := closed
     print("Falling edge = buckled")
     requests.get(url="{}/buckle".format(URL), params=params)
 
 
 def main():
-  # busy polling
-  '''
-  while True:
-    state = GPIO.input(REED_PIN)
-    print("State of", REED_PIN, "is", state) 
-    sleep(TIMEOUT)
-  '''
-
+  # onchange callback
   GPIO.add_event_detect(REED_PIN, GPIO.BOTH, callback=onchange, bouncetime=10)
 
-  print("State of", REED_PIN, "is", GPIO.input(REED_PIN))
+  print("Initial state of", REED_PIN, "is", GPIO.input(REED_PIN))
   
+  # keep the thread running
   while True:
     sleep(TIMEOUT)
 
